@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consola de Acesso Tesla</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #141414;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(230, 26, 26, 0.2);
+            text-align: center;
+            width: 350px;
+        }
+        h2 { color: #cc0000; margin-bottom: 20px; font-weight: 600; }
+        input[type="text"] {
+            width: 80%;
+            padding: 12px;
+            border: 2px solid #333;
+            border-radius: 6px;
+            background-color: #222;
+            color: #fff;
+            font-size: 16px;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+        input[type="text"]:focus { border-color: #cc0000; outline: none; }
+        button {
+            width: 88%;
+            padding: 12px;
+            background-color: #cc0000;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover { background-color: #e60000; }
+        #status { margin-top: 20px; font-size: 14px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Acesso Tesla Fleet</h2>
+    <p>Introduza a matrícula do veículo associado:</p>
+    <input type="text" id="matricula" placeholder="AA-00-00" maxlength="8">
+    <button onclick="conectarTesla()">Solicitar Acesso</button>
+    <div id="status">A aguardar instrução...</div>
+</div>
+
+<script>
+async function conectarTesla() {
+    const matriculaInput = document.getElementById('matricula').value;
+    const statusDiv = document.getElementById('status');
+
+    if (!matriculaInput) {
+        statusDiv.innerHTML = "<span style='color: #ff3333;'>Por favor, insira uma matrícula.</span>";
+        return;
+    }
+
+    statusDiv.innerText = "A localizar veículo e a validar Token OAuth...";
+
+    try {
+        // O HTML não pode chamar a API da Tesla diretamente devido ao CORS e chaves privadas.
+        // Enviamos o pedido para o nosso servidor Backend seguro.
+        const resposta = await fetch('https://o-seu-servidor-backend.com', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ matricula: matriculaInput })
+        });
+
+        const dados = await respuesta.json();
+        
+        if (dados.sucesso) {
+            statusDiv.innerHTML = `<span style='color: #33ff33;'>Ligado com sucesso! VIN: ${dados.vin}</span>`;
+        } else {
+            statusDiv.innerHTML = `<span style='color: #ff3333;'>Erro: ${dados.mensagem}</span>`;
+        }
+    } catch (erro) {
+        statusDiv.innerHTML = "<span style='color: #ff3333;'>Erro ao contactar o servidor backend.</span>";
+    }
+}
+</script>
+
+</body>
+</html>
